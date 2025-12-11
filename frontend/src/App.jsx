@@ -5,7 +5,6 @@ import HostDashboard from "./pages/HostDashboard";
 import PublicBookingPage from "./pages/PublicBookingPage";
 import Register from "./pages/Register";
 
-
 const App = () => {
   return (
     <BrowserRouter>
