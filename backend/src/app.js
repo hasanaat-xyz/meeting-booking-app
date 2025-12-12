@@ -7,6 +7,7 @@ import slotRoutes from "./routes/slot-routes.js";
 import eventRoutes from "./routes/event-route.js"
 // 1. Import the new authentication route file
 import authRoutes from "./routes/auth-routes.js"; 
+import googleRoutes from "./routes/google.js";
 
 const app = express();
 
@@ -23,5 +24,8 @@ app.use("/api/event", eventRoutes);
 // 2. Register the Authentication Routes
 // This line makes all routes in auth-routes.js accessible under /api/auth
 app.use("/api/auth", authRoutes); 
+
+
+app.use("/api/google", googleRoutes);
 
 export default app;

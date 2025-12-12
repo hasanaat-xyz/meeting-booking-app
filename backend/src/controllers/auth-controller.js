@@ -69,7 +69,11 @@ export const login = async (req, res) => {
         secure: process.env.NODE_ENV === "production", 
       })
       .status(200)
-      .json({ message: "Login successful", user });
+      .json({ 
+        message: "Login successful", 
+        user,
+        token // Also return token in response body for localStorage
+      });
       
   } catch (error) {
     console.error(error); // This will now catch the error if the fix fails

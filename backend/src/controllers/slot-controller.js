@@ -1,146 +1,119 @@
-// src/controllers/slot-controller.js
-import Slot from "../models/slot-model.js"; 
+import Slot from "../models/slot-model.js";
 
-export const getPublicSlots = async (req, res) => {
-  try {
-    // Logic: Find slots that are NOT booked and have an endTime in the future
-    const availableSlots = await Slot.find({
-      isBooked: false, // <-- Filter 1: Must be available for public booking
-      startTime: { $gte: new Date() } // <-- Filter 2: Must not have already passed
-    }).sort({ startTime: 1 }); // Sort by start time ascending
-
-    res.status(200).json({ 
-      success: true, 
-      events: availableSlots // Frontend expects 'events' based on PublicBookingPage.jsx
-    });
-
-  } catch (error) {
-    console.error("Error fetching public slots:", error);
-    res.status(500).json({ 
-      success: false, 
-      message: "Server error occurred while fetching slots." 
-    });
-  }
-};
-// ... (rest of the controller code is unchanged and correct)
-
-
-// ----------------------------------------------------
-// AUTHENTICATED/PRIVATE ROUTE HANDLERS
-// ----------------------------------------------------
-
-// POST /api/slots - Admin creates a new slot
+// Create Slot
 export const createSlot = async (req, res) => {
-  const hostId = req.user._id; 
-  const { date, startTime, endTime } = req.body;
-
-  if (!date || !startTime || !endTime) {
-    return res.status(400).json({ message: "Slot date, start time, and end time are required." });
-  }
-
   try {
-    // Combine date + time into valid ISO timestamps
-    const start = new Date(`${date}T${startTime}`);
-    const end = new Date(`${date}T${endTime}`);
+    const { date, startTime, endTime } = req.body;
 
-    const newSlot = await Slot.create({
-      hostId,
-      date: new Date(date),
-      startTime: start,
-      endTime: end,
-      isBooked: false,
+    if (!date || !startTime || !endTime) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
+    const slot = await Slot.create({
+      date,
+      startTime,
+      endTime,
+      createdBy: req.user.id,
     });
 
-    res.status(201).json({ 
-      success: true, 
-      slot: newSlot, 
-      message: "Slot created successfully." 
-    });
-
+    res.status(201).json({ message: "Slot created successfully", slot });
   } catch (error) {
-    console.error("Error creating slot:", error);
-    res.status(500).json({ 
-      success: false, 
-      message: "Server error occurred while creating slot." 
-    });
+    console.error("Create Slot Error:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };
 
-// GET /api/slots - Admin fetches their own slots
-export const getAuthenticatedSlots = async (req, res) => {
+// Get all slots
+export const getAllSlots = async (req, res) => {
   try {
-    // Find slots created by the authenticated user
-    const slots = await Slot.find({ hostId: req.user._id }).sort({ startTime: 1 });
-    
-    res.status(200).json({ 
-      success: true, 
-      slots: slots 
-    });
+    const slots = await Slot.find({ createdBy: req.user.id })
+      .sort({ date: 1, startTime: 1 });
 
+    res.status(200).json(slots);
   } catch (error) {
-    console.error("Error fetching authenticated slots:", error);
-    res.status(500).json({ 
-      success: false, 
-      message: "Server error occurred while fetching authenticated slots." 
-    });
+    console.error("Get Slots Error:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };
 
-// PUT /api/slots/:id - Admin updates an existing slot
+// Update Slot
 export const updateSlot = async (req, res) => {
-  const { id } = req.params;
-  const updates = req.body;
-  
   try {
-    const updatedSlot = await Slot.findOneAndUpdate(
-      { _id: id, hostId: req.user._id }, // Ensure only the host can update
-      updates, 
-      { new: true, runValidators: true } 
-    );
+    const { id } = req.params;
+    const { date, startTime, endTime } = req.body;
 
-    if (!updatedSlot) {
-      return res.status(404).json({ message: "Slot not found or you are not authorized to update it." });
+    // Require host authentication
+    const slot = await Slot.findOne({ _id: id, hostId: req.user._id });
+    if (!slot) {
+      return res.status(404).json({ message: "Slot not found or not authorized" });
     }
 
-    res.status(200).json({ 
-      success: true, 
-      slot: updatedSlot, 
-      message: `Slot ${id} updated successfully.` 
+    // Normalize incoming values to Date objects
+    const nextDate = date ? new Date(date) : slot.date;
+    const nextStart = startTime
+      ? new Date(startTime)
+      : slot.startTime;
+    const nextEnd = endTime
+      ? new Date(endTime)
+      : slot.endTime;
+
+    // If only time strings are sent (HH:mm), combine with date
+    const isTimeOnly = (value) => typeof value === "string" && value.length <= 5 && value.includes(":");
+    const dateString = nextDate.toISOString().split("T")[0];
+    const normalizedStart = isTimeOnly(startTime) ? new Date(`${dateString}T${startTime}`) : nextStart;
+    const normalizedEnd = isTimeOnly(endTime) ? new Date(`${dateString}T${endTime}`) : nextEnd;
+
+    // Validate required fields
+    if (!normalizedStart || !normalizedEnd || !nextDate) {
+      return res.status(400).json({ message: "Date, start time, and end time are required." });
+    }
+
+    // Validate ordering
+    if (normalizedEnd <= normalizedStart) {
+      return res.status(400).json({ message: "End time must be after start time." });
+    }
+
+    // Prevent overlaps with other slots of the same host
+    const overlapping = await Slot.findOne({
+      _id: { $ne: id },
+      hostId: req.user._id,
+      startTime: { $lt: normalizedEnd },
+      endTime: { $gt: normalizedStart },
     });
 
+    if (overlapping) {
+      return res.status(400).json({ message: "This time overlaps with another slot." });
+    }
+
+    slot.date = nextDate;
+    slot.startTime = normalizedStart;
+    slot.endTime = normalizedEnd;
+
+    const saved = await slot.save();
+
+    res.status(200).json({ success: true, message: "Slot updated successfully", slot: saved });
   } catch (error) {
-    console.error("Error updating slot:", error);
-    res.status(500).json({ 
-      success: false, 
-      message: "Server error occurred while updating slot." 
-    });
+    console.error("Update Slot Error:", error);
+    res.status(500).json({ success: false, message: "Server error", error: error.message });
   }
 };
 
-// DELETE /api/slots/:id - Admin deletes a slot
+// Delete Slot
 export const deleteSlot = async (req, res) => {
-  const { id } = req.params;
-  
   try {
-    const deletedSlot = await Slot.findOneAndDelete({ 
-        _id: id, 
-        hostId: req.user._id // Ensure only the host can delete
-    });
+    const { id } = req.params;
 
-    if (!deletedSlot) {
-      return res.status(404).json({ message: "Slot not found or you are not authorized to delete it." });
+    const slot = await Slot.findById(id);
+
+    if (!slot) {
+      return res.status(404).json({ message: "Slot not found" });
     }
 
-    res.status(200).json({ 
-      success: true, 
-      message: `Slot ${id} deleted successfully.` 
-    });
+    await slot.deleteOne();
 
+    res.status(200).json({ message: "Slot deleted successfully" });
   } catch (error) {
-    console.error("Error deleting slot:", error);
-    res.status(500).json({ 
-      success: false, 
-      message: "Server error occurred while deleting slot." 
-    });
+    console.error("Delete Slot Error:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };

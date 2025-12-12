@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import api from "../components/Services/api";
 import '../index.css';
+
 const Login = () => {
   const [form, setForm] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
@@ -17,6 +18,10 @@ const Login = () => {
       const res = await api.post("/auth/login", form);
 
       if (res.data && res.data.message === "Login successful") {
+        // Store token in localStorage for Authorization header
+        if (res.data.token) {
+          localStorage.setItem('userToken', res.data.token);
+        }
         alert("Login Successful");
         window.location.href = "/dashboard";
       } else {
@@ -30,99 +35,127 @@ const Login = () => {
   };
 
   return (
-    // Reverted to the original vibrant gradient background
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 p-4">
-      
-      {/* Container Card with Glassmorphism Effect */}
-      <div className="w-full max-w-md bg-white/20 backdrop-blur-md shadow-2xl rounded-2xl p-8 border border-white/40">
-        
-        {/* Header/Title - Optimized for contrast against the background */}
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-lavender-100 via-mint-50 to-peach-100 p-4">
+      {/* Decorative background elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 left-10 w-72 h-72 bg-lavender-200/30 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-peach-200/30 rounded-full blur-3xl"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-mint-200/20 rounded-full blur-3xl"></div>
+      </div>
+
+      {/* Main Card */}
+      <div className="relative w-full max-w-md bg-white/80 backdrop-blur-lg shadow-2xl rounded-3xl p-8 md:p-10 border border-white/50">
+        {/* Header */}
         <div className="text-center mb-8">
-            <h1 className="text-4xl font-extrabold text-white drop-shadow-lg tracking-tight">
-                Welcome Back
-            </h1>
-            <p className="text-md text-white/90 mt-1 drop-shadow">
-                Sign in to access your account.
-            </p>
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-lavender-300 to-mint-300 rounded-2xl mb-4 shadow-lg">
+            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+          </div>
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-2 tracking-tight">
+            Welcome Back
+          </h1>
+          <p className="text-gray-600 text-sm md:text-base">
+            Sign in to access your account
+          </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          
-          {/* Email Input Group */}
+        <form onSubmit={handleSubmit} className="space-y-5">
+          {/* Email Input */}
           <div>
             <label 
               htmlFor="email" 
-              className="block text-sm font-semibold text-white mb-1 drop-shadow"
+              className="block text-sm font-semibold text-gray-700 mb-2"
             >
               Email Address
             </label>
-            <input
-              id="email"
-              type="email"
-              name="email"
-              placeholder="you@example.com"
-              // Glassmorphic Input Style
-              className="w-full px-4 py-2 bg-white/70 border border-white/50 rounded-xl shadow-inner placeholder-gray-600 
-                         focus:outline-none focus:ring-2 focus:ring-yellow-300 focus:border-yellow-300 text-gray-800 transition-all"
-              value={form.email}
-              onChange={handleChange}
-              required
-            />
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg className="h-5 w-5 text-lavender-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
+                </svg>
+              </div>
+              <input
+                id="email"
+                type="email"
+                name="email"
+                placeholder="you@example.com"
+                className="w-full pl-10 pr-4 py-3 bg-white/60 border-2 border-lavender-200 rounded-xl 
+                           placeholder-gray-400 text-gray-800 transition-all duration-200
+                           focus:outline-none focus:ring-2 focus:ring-lavender-300 focus:border-lavender-300 
+                           hover:border-lavender-300 focus:bg-white"
+                value={form.email}
+                onChange={handleChange}
+                required
+              />
+            </div>
           </div>
 
-          {/* Password Input Group */}
+          {/* Password Input */}
           <div>
             <label 
               htmlFor="password" 
-              className="block text-sm font-semibold text-white mb-1 drop-shadow"
+              className="block text-sm font-semibold text-gray-700 mb-2"
             >
               Password
             </label>
-            <input
-              id="password"
-              type="password"
-              name="password"
-              placeholder="••••••••"
-              // Glassmorphic Input Style
-              className="w-full px-4 py-2 bg-white/70 border border-white/50 rounded-xl shadow-inner placeholder-gray-600 
-                         focus:outline-none focus:ring-2 focus:ring-yellow-300 focus:border-yellow-300 text-gray-800 transition-all"
-              value={form.password}
-              onChange={handleChange}
-              required
-            />
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg className="h-5 w-5 text-mint-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+              </div>
+              <input
+                id="password"
+                type="password"
+                name="password"
+                placeholder="••••••••"
+                className="w-full pl-10 pr-4 py-3 bg-white/60 border-2 border-mint-200 rounded-xl 
+                           placeholder-gray-400 text-gray-800 transition-all duration-200
+                           focus:outline-none focus:ring-2 focus:ring-mint-300 focus:border-mint-300 
+                           hover:border-mint-300 focus:bg-white"
+                value={form.password}
+                onChange={handleChange}
+                required
+              />
+            </div>
           </div>
 
-          {/* Submit Button - Used a contrasting bright color (Yellow) for high visibility */}
+          {/* Submit Button */}
           <button
             type="submit"
             disabled={loading}
-            className="w-full flex justify-center py-3 mt-4 rounded-xl shadow-lg text-lg font-bold text-gray-900 
-                       bg-yellow-300 hover:bg-yellow-400 focus:outline-none focus:ring-4 focus:ring-yellow-300/50 
-                       disabled:opacity-50 disabled:cursor-wait transition-all duration-200 transform hover:scale-[1.01]"
+            className="w-full flex justify-center items-center py-3.5 mt-6 rounded-xl 
+                       bg-gradient-to-r from-lavender-400 via-mint-400 to-peach-400 
+                       text-white font-semibold text-base shadow-lg shadow-lavender-200/50
+                       hover:shadow-xl hover:shadow-lavender-300/50 
+                       focus:outline-none focus:ring-4 focus:ring-lavender-300/50 
+                       disabled:opacity-50 disabled:cursor-wait 
+                       transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98]"
             aria-busy={loading}
           >
             {loading ? (
               <>
-                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-gray-800" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
                 Logging in...
               </>
             ) : (
-              "Login"
+              "Sign In"
             )}
           </button>
         </form>
 
         {/* Footer Link */}
-        <p className="text-center text-white/90 mt-6 text-sm drop-shadow">
-          Don’t have an account?{" "}
+        <p className="text-center text-gray-600 mt-6 text-sm">
+          Don't have an account?{" "}
           <a 
             href="/register" 
-            className="underline font-bold text-yellow-200 hover:text-white transition-colors"
+            className="font-semibold text-lavender-500 hover:text-lavender-600 transition-colors underline decoration-2 underline-offset-2"
           >
-            Register Now
+            Create an account
           </a>
         </p>
       </div>

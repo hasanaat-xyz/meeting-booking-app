@@ -7,8 +7,14 @@ export const authMiddleware = async (req, res, next) => {
   let token;
 
   try {
-    // Check if token exists in cookies
-    if (req.cookies && req.cookies.token) {
+    // Check if token exists in Authorization header (Bearer token)
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      token = authHeader.substring(7); // Remove 'Bearer ' prefix
+    }
+    
+    // Also check cookies as fallback
+    if (!token && req.cookies && req.cookies.token) {
       token = req.cookies.token;
     }
 
@@ -21,6 +27,10 @@ export const authMiddleware = async (req, res, next) => {
 
     // Attach user to request object (excluding password)
     req.user = await User.findById(decoded.id).select("-password");
+    
+    if (!req.user) {
+      return res.status(401).json({ message: "User not found" });
+    }
 
     next();
   } catch (error) {
