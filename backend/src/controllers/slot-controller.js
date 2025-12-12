@@ -1,6 +1,6 @@
 import Slot from "../models/slot-model.js";
 
-// Create Slot
+// Create Slot (host)
 export const createSlot = async (req, res) => {
   try {
     const { date, startTime, endTime } = req.body;
@@ -10,29 +10,43 @@ export const createSlot = async (req, res) => {
     }
 
     const slot = await Slot.create({
-      date,
-      startTime,
-      endTime,
-      createdBy: req.user.id,
+      hostId: req.user._id, // ensure we store hostId consistently
+      date: new Date(date),
+      startTime: new Date(startTime),
+      endTime: new Date(endTime),
+      isBooked: false,
     });
 
-    res.status(201).json({ message: "Slot created successfully", slot });
+    res.status(201).json({ success: true, message: "Slot created successfully", slot });
   } catch (error) {
     console.error("Create Slot Error:", error);
-    res.status(500).json({ message: "Server error", error: error.message });
+    res.status(500).json({ success: false, message: "Server error", error: error.message });
   }
 };
 
-// Get all slots
-export const getAllSlots = async (req, res) => {
+// Public: get only future, unbooked slots
+export const getPublicSlots = async (_req, res) => {
   try {
-    const slots = await Slot.find({ createdBy: req.user.id })
-      .sort({ date: 1, startTime: 1 });
+    const slots = await Slot.find({
+      isBooked: false,
+      startTime: { $gte: new Date() },
+    }).sort({ startTime: 1 });
 
-    res.status(200).json(slots);
+    res.status(200).json({ success: true, events: slots });
   } catch (error) {
-    console.error("Get Slots Error:", error);
-    res.status(500).json({ message: "Server error", error: error.message });
+    console.error("Get Public Slots Error:", error);
+    res.status(500).json({ success: false, message: "Server error", error: error.message });
+  }
+};
+
+// Host: get authenticated user's slots
+export const getAuthenticatedSlots = async (req, res) => {
+  try {
+    const slots = await Slot.find({ hostId: req.user._id }).sort({ startTime: 1 });
+    res.status(200).json({ success: true, slots });
+  } catch (error) {
+    console.error("Get Auth Slots Error:", error);
+    res.status(500).json({ success: false, message: "Server error", error: error.message });
   }
 };
 
@@ -103,7 +117,7 @@ export const deleteSlot = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const slot = await Slot.findById(id);
+    const slot = await Slot.findOne({ _id: id, hostId: req.user._id });
 
     if (!slot) {
       return res.status(404).json({ message: "Slot not found" });
