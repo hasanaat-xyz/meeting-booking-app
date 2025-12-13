@@ -1,0 +1,79 @@
+📋 STEPS TO RUN THE MEETING BOOKING APP
+==========================================
+
+1. CLONE THE REPOSITORY
+
+   git clone <repository-url>
+   cd meeting-booking-app
+
+
+2. INSTALL PREREQUISITES
+
+   - Node.js (v14 or higher) - Download from nodejs.org
+   - MongoDB - Install locally or use MongoDB Atlas (free cloud database)
+   - A code editor (VS Code recommended)
+
+
+3. SETUP BACKEND
+   --------------
+   cd backend
+   npm install
+   
+   Create a .env file in the backend folder with:
+   
+   MONGO_URI=your_mongodb_connection_string
+   PORT=8000
+   JWT_SECRET=your_secret_key_here
+   RESEND_API_KEY=your_resend_api_key
+   FROM_EMAIL=your_verified_email@domain.com
+   
+   Optional (for Google Calendar):
+   GOOGLE_CLIENT_ID=your_google_client_id
+   GOOGLE_CLIENT_SECRET=your_google_client_secret
+   GOOGLE_REDIRECT_URL=http://localhost:8000/api/google/callback
+   TIMEZONE=UTC
+
+
+4. SETUP FRONTEND
+   ---------------
+   cd ../frontend
+   npm install
+
+
+5. START THE APPLICATION
+   ----------------------
+   
+   Terminal 1 - Start Backend:
+   cd backend
+   npm run dev
+   
+   Terminal 2 - Start Frontend:
+   cd frontend
+   npm run dev
+   
+   The app will be available at:
+   - Frontend: http://localhost:5173
+   - Backend: http://localhost:8000
+
+
+6. FIRST TIME USAGE
+   -----------------
+   1. Open http://localhost:5173 in your browser
+   2. Click "Register" to create a host account
+   3. Login with your credentials
+   4. Go to Dashboard to add available time slots
+   5. Share the public booking page link (http://localhost:5173) with clients
+
+
+QUICK TROUBLESHOOTING
+---------------------
+- Backend won't start? Check if MongoDB is running and .env file exists
+- Frontend shows errors? Make sure backend is running on port 8000
+- Can't add slots? Make sure you're logged in (check localStorage for token)
+- Email not working? Verify RESEND_API_KEY and FROM_EMAIL in .env
+
+
+NEED HELP?
+----------
+Check the README.md file for detailed documentation and API endpoints.
+
