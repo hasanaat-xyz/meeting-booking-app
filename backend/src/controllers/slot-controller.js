@@ -128,6 +128,8 @@ export const deleteSlot = async (req, res) => {
     res.status(200).json({ message: "Slot deleted successfully" });
   } catch (error) {
     console.error("Delete Slot Error:", error);
-    res.status(500).json({ message: "Server error", error: error.message });
+    res.stat
+    us(500).json({ message: "Server error", error: error.message });
   }
+  
 };
