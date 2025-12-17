@@ -61,6 +61,7 @@ export const updateSlot = async (req, res) => {
     if (!slot) {
       return res.status(404).json({ message: "Slot not found or not authorized" });
     }
+    
     // Normalize incoming values to Date objects
     const nextDate = date ? new Date(date) : slot.date;
     const nextStart = startTime
