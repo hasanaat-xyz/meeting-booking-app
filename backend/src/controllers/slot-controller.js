@@ -124,7 +124,6 @@ export const deleteSlot = async (req, res) => {
     }
 
     await slot.deleteOne();
-
     res.status(200).json({ message: "Slot deleted successfully" });
   } catch (error) {
     console.error("Delete Slot Error:", error);
