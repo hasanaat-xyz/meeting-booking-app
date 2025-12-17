@@ -129,4 +129,5 @@ export const deleteSlot = async (req, res) => {
     res.stat
     us(500).json({ message: "Server error", error: error.message });
   }
+  
 };
