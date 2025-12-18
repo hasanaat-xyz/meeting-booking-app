@@ -65,7 +65,6 @@ export const updateSlot = async (req, res) => {
     // Normalize incoming values to Date objects
     const nextDate = date ? new Date(date) : slot.date;
     const nextStart = startTime
-    
       ? new Date(startTime)
       : slot.startTime;
     const nextEnd = endTime
