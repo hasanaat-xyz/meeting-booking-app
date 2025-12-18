@@ -7,4 +7,5 @@ const googleTokenSchema = new mongoose.Schema({
   token_type: String,
   expiry_date: Number,
 });
+
 export default mongoose.model("GoogleToken", googleTokenSchema);
