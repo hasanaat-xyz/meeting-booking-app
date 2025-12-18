@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 
-const bookingSchema = new mongoose.Schema({
-  
+const bookingSchema = new mongoose.Schema({  
   slotId: { type: mongoose.Schema.Types.ObjectId, ref: "Slot", unique: true },
   name: String,
   email: String,
