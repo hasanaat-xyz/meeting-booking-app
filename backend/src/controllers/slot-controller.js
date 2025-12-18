@@ -71,6 +71,7 @@ export const updateSlot = async (req, res) => {
       ? new Date(endTime)
       : slot.endTime;
 
+      
     // If only time strings are sent (HH:mm), combine with date
     const isTimeOnly = (value) => typeof value === "string" && value.length <= 5 && value.includes(":");
     const dateString = nextDate.toISOString().split("T")[0];
