@@ -78,6 +78,7 @@ export const updateSlot = async (req, res) => {
     const normalizedEnd = isTimeOnly(endTime) ? new Date(`${dateString}T${endTime}`) : nextEnd;
 
     // Validate required fields
+    
     if (!normalizedStart || !normalizedEnd || !nextDate) {
       return res.status(400).json({ message: "Date, start time, and end time are required." });
     }
