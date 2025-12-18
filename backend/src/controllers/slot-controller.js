@@ -85,6 +85,7 @@ export const updateSlot = async (req, res) => {
     if (normalizedEnd <= normalizedStart) {
       return res.status(400).json({ message: "End time must be after start time." });
     }
+
     
     // Prevent overlaps with other slots of the same host
     const overlapping = await Slot.findOne({
