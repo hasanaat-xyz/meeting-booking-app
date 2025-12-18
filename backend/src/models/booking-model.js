@@ -6,5 +6,4 @@ const bookingSchema = new mongoose.Schema({
   email: String,
   purpose: String
 }, { timestamps: true });
-
 export default mongoose.model("Booking", bookingSchema);
