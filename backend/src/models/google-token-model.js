@@ -9,3 +9,4 @@ const googleTokenSchema = new mongoose.Schema({
 });
 
 export default mongoose.model("GoogleToken", googleTokenSchema);
+
