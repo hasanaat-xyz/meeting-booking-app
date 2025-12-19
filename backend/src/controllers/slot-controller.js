@@ -106,6 +106,7 @@ export const updateSlot = async (req, res) => {
     console.error("Update Slot Error:", error);
     res.status(500).json({ success: false, message: "Server error", error: error.message });
   }
+  
 };
 
 // Delete Slot
