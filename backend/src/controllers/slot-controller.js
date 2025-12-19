@@ -101,7 +101,6 @@ export const updateSlot = async (req, res) => {
     slot.startTime = normalizedStart;
     slot.endTime = normalizedEnd;
     const saved = await slot.save();
-
     res.status(200).json({ success: true, message: "Slot updated successfully", slot: saved });
   } catch (error) {
     console.error("Update Slot Error:", error);
