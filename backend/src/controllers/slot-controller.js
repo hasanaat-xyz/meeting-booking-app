@@ -118,6 +118,7 @@ export const deleteSlot = async (req, res) => {
     if (!slot) {
       return res.status(404).json({ message: "Slot not found" });
     }
+    
     await slot.deleteOne();
     res.status(200).json({ message: "Slot deleted successfully" });
   } catch (error) {
