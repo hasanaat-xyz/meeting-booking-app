@@ -96,11 +96,10 @@ export const updateSlot = async (req, res) => {
     if (overlapping) {
       return res.status(400).json({ message: "This time overlaps with another slot." });
     }
-    
+
     slot.date = nextDate;
     slot.startTime = normalizedStart;
     slot.endTime = normalizedEnd;
-
     const saved = await slot.save();
 
     res.status(200).json({ success: true, message: "Slot updated successfully", slot: saved });
