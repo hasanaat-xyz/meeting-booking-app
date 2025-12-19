@@ -93,7 +93,6 @@ export const updateSlot = async (req, res) => {
       startTime: { $lt: normalizedEnd },
       endTime: { $gt: normalizedStart },
     });
-
     if (overlapping) {
       return res.status(400).json({ message: "This time overlaps with another slot." });
     }
